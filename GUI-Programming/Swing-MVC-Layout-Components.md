@@ -31,6 +31,7 @@
     - [JSlider](#jslider)
     - [JProgressBar](#jprogressbar)
   - [Example: Simple Login Form](#coding-example-simple-login-form)
+- [Example: Component Showcase with Real-time Interactions](#component-showcase-with-real-time-interactions)
 - [Summary](#summary)
 
 ---
@@ -460,6 +461,374 @@ public class LoginFormDemo {
         frame.setVisible(true);
     }
 }
+```
+
+### **Example: Component Showcase with Real-time Interactions**
+
+```java
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ItemEvent;
+
+public class SwingComponentsShowcase {
+
+    // Constants - UI Configuration
+    private static final int WINDOW_WIDTH = 750;
+    private static final int WINDOW_HEIGHT = 650;
+    private static final int PROGRESS_INITIAL_VALUE = 50;
+
+    private static final Color HEADER_BACKGROUND = new Color(240, 248, 255);
+    private static final Color PANEL_BACKGROUND = new Color(245, 245, 245);
+    private static final Color TITLE_COLOR = new Color(0, 102, 204);
+    private static final Color PROGRESS_COLOR = new Color(50, 205, 50);
+
+    // Component References - Global access for event handlers
+    private static JProgressBar progressBar;
+    private static JPanel formPanel;
+    private static JPanel headerPanel;
+    private static JPanel selectionPanel;
+    private static JLabel titleLabel;
+
+    // Form input components
+    private static JTextField nameField;
+    private static JPasswordField passwordField;
+    private static JTextArea commentArea;
+    private static JComboBox<String> colorComboBox;
+    private static JSlider volumeSlider;
+
+    // Selection components
+    private static JCheckBox boldCheckbox;
+    private static JCheckBox italicCheckbox;
+    private static JRadioButton smallRadio;
+    private static JRadioButton mediumRadio;
+    private static JRadioButton largeRadio;
+    private static JList<String> fruitList;
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(SwingComponentsShowcase::createAndShowGUI);
+    }
+
+    /**
+     * Creates and displays the main application window with all components.
+     * Uses BorderLayout to organize header, form, selection panel, and buttons.
+     */
+    private static void createAndShowGUI() {
+        JFrame frame = new JFrame("Swing Components Showcase");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
+        frame.setLocationRelativeTo(null);
+
+        JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
+        mainPanel.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createEmptyBorder(10, 10, 10, 10),
+            BorderFactory.createTitledBorder(
+                BorderFactory.createEtchedBorder(),
+                "All Core Swing Components")
+        ));
+
+        buildHeaderPanel();
+        buildFormPanel();
+        buildSelectionPanel();
+        JPanel buttonPanel = buildButtonPanel();
+
+        mainPanel.add(headerPanel, BorderLayout.NORTH);
+        mainPanel.add(formPanel, BorderLayout.CENTER);
+        mainPanel.add(selectionPanel, BorderLayout.WEST);
+        mainPanel.add(buttonPanel, BorderLayout.SOUTH);
+
+        frame.add(mainPanel);
+        frame.setVisible(true);
+
+        // Set initial Red color theme after all panels are built
+        Color redBackground = new Color(255, 220, 220);
+        formPanel.setBackground(redBackground);
+        headerPanel.setBackground(redBackground.brighter());
+        selectionPanel.setBackground(redBackground.brighter());
+
+        setupRealTimeInteractions();
+    }
+
+    /**
+     * Creates header panel with title label and progress bar.
+     * Demonstrates JLabel styling and JProgressBar with string painting.
+     */
+    private static void buildHeaderPanel() {
+        headerPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 15));
+        headerPanel.setBackground(HEADER_BACKGROUND);
+
+        titleLabel = new JLabel("Welcome to Swing Demo!", SwingConstants.CENTER);
+        titleLabel.setFont(new Font("SansSerif", Font.BOLD, 20));
+        titleLabel.setForeground(TITLE_COLOR);
+        headerPanel.add(titleLabel);
+
+        progressBar = new JProgressBar(0, 100);
+        progressBar.setValue(PROGRESS_INITIAL_VALUE);
+        progressBar.setStringPainted(true);
+        progressBar.setString(PROGRESS_INITIAL_VALUE + "%");
+        progressBar.setPreferredSize(new Dimension(220, 35));
+        progressBar.setForeground(PROGRESS_COLOR);
+        progressBar.setFont(new Font("Arial", Font.BOLD, 12));
+        headerPanel.add(progressBar);
+    }
+
+    /**
+     * Creates form panel with text fields, password field, text area, combo box, and slider.
+     */
+    private static void buildFormPanel() {
+        formPanel = new JPanel(new GridBagLayout());
+        formPanel.setBackground(Color.WHITE);
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(10, 10, 10, 10);
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+
+        // Name input field
+        nameField = new JTextField(20);
+        nameField.setToolTipText("Enter your full name");
+        addFormRow(gbc, "Name:", nameField, 0);
+
+        // Password input field
+        passwordField = new JPasswordField(20);
+        passwordField.setToolTipText("Enter your password");
+        addFormRow(gbc, "Password:", passwordField, 1);
+
+        // Multi-line comment area with scrolling
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        formPanel.add(new JLabel("Comments:"), gbc);
+
+        gbc.gridx = 1;
+        commentArea = new JTextArea(4, 20);
+        commentArea.setLineWrap(true);
+        commentArea.setWrapStyleWord(true);
+        commentArea.setToolTipText("Write your feedback or comments");
+        JScrollPane scrollPane = new JScrollPane(commentArea);
+        formPanel.add(scrollPane, gbc);
+
+        // Color selection dropdown
+        colorComboBox = new JComboBox<>(new String[]{"Red", "Green", "Blue", "Yellow"});
+        colorComboBox.setToolTipText("Choose a background color theme");
+        addFormRow(gbc, "Color:", colorComboBox, 3);
+
+        // Volume slider with tick marks
+        volumeSlider = new JSlider(0, 100, PROGRESS_INITIAL_VALUE);
+        volumeSlider.setMajorTickSpacing(25);
+        volumeSlider.setMinorTickSpacing(5);
+        volumeSlider.setPaintTicks(true);
+        volumeSlider.setPaintLabels(true);
+        volumeSlider.setToolTipText("Adjust volume level (0-100)");
+        addFormRow(gbc, "Volume:", volumeSlider, 4);
+    }
+
+    /**
+     * Helper method to add a labeled form row.
+     */
+    private static void addFormRow(GridBagConstraints gbc, String labelText,
+                                   JComponent component, int row) {
+        gbc.gridx = 0;
+        gbc.gridy = row;
+        formPanel.add(new JLabel(labelText), gbc);
+
+        gbc.gridx = 1;
+        formPanel.add(component, gbc);
+    }
+
+    /**
+     * Creates selection panel with checkboxes, radio buttons, and list.
+     */
+    private static void buildSelectionPanel() {
+        selectionPanel = new JPanel();
+        selectionPanel.setLayout(new BoxLayout(selectionPanel, BoxLayout.Y_AXIS));
+        selectionPanel.setBorder(BorderFactory.createTitledBorder("Selection Controls"));
+        selectionPanel.setBackground(PANEL_BACKGROUND);
+
+        // Checkboxes for text styling
+        boldCheckbox = new JCheckBox("Bold Text");
+        boldCheckbox.setToolTipText("Apply bold style to title");
+        italicCheckbox = new JCheckBox("Italic Text");
+        italicCheckbox.setToolTipText("Apply italic style to title");
+        selectionPanel.add(boldCheckbox);
+        selectionPanel.add(italicCheckbox);
+        selectionPanel.add(Box.createVerticalStrut(15));
+
+        // Radio buttons for font size
+        selectionPanel.add(new JLabel("Font Size:"));
+        smallRadio = new JRadioButton("Small");
+        mediumRadio = new JRadioButton("Medium", true);
+        largeRadio = new JRadioButton("Large");
+
+        ButtonGroup sizeGroup = new ButtonGroup();
+        sizeGroup.add(smallRadio);
+        sizeGroup.add(mediumRadio);
+        sizeGroup.add(largeRadio);
+
+        selectionPanel.add(smallRadio);
+        selectionPanel.add(mediumRadio);
+        selectionPanel.add(largeRadio);
+        selectionPanel.add(Box.createVerticalStrut(15));
+
+        // Scrollable list of fruits
+        selectionPanel.add(new JLabel("Fruits:"));
+        DefaultListModel<String> fruitModel = new DefaultListModel<>();
+        String[] fruits = {"Apple", "Banana", "Cherry", "Date", "Elderberry", "Fig"};
+        for (String fruit : fruits) {
+            fruitModel.addElement(fruit);
+        }
+
+        fruitList = new JList<>(fruitModel);
+        fruitList.setVisibleRowCount(5);
+        fruitList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        JScrollPane listScroll = new JScrollPane(fruitList);
+        listScroll.setPreferredSize(new Dimension(130, 110));
+        selectionPanel.add(listScroll);
+    }
+
+    /**
+     * Creates button panel with submit, clear, and exit buttons.
+     */
+    private static JPanel buildButtonPanel() {
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 15));
+
+        JButton submitBtn = new JButton("Submit");
+        submitBtn.setToolTipText("Submit form data");
+        submitBtn.addActionListener(e -> showSubmissionDialog());
+
+        JButton clearBtn = new JButton("Clear");
+        clearBtn.setToolTipText("Reset all fields");
+        clearBtn.addActionListener(e -> resetAllFields());
+
+        JButton exitBtn = new JButton("Exit");
+        exitBtn.setToolTipText("Close application");
+        exitBtn.addActionListener(e -> System.exit(0));
+
+        buttonPanel.add(submitBtn);
+        buttonPanel.add(clearBtn);
+        buttonPanel.add(exitBtn);
+
+        return buttonPanel;
+    }
+
+    /**
+     * Displays a dialog with all submitted form values.
+     */
+    private static void showSubmissionDialog() {
+        String name = nameField.getText().trim();
+        String password = new String(passwordField.getPassword());
+        String comment = commentArea.getText().trim();
+        String color = (String) colorComboBox.getSelectedItem();
+        int volume = volumeSlider.getValue();
+
+        // Get selected values from left panel
+        String boldText = boldCheckbox.isSelected() ? "Yes" : "No";
+        String italicText = italicCheckbox.isSelected() ? "Yes" : "No";
+        String fontSize = smallRadio.isSelected() ? "Small" :
+                         mediumRadio.isSelected() ? "Medium" :
+                         largeRadio.isSelected() ? "Large" : "None";
+        String selectedFruit = fruitList.getSelectedValue();
+
+        StringBuilder message = new StringBuilder("=== Form Submission ===\n\n");
+        message.append("Name: ").append(name.isEmpty() ? "[Empty]" : name).append("\n");
+        message.append("Password: ").append(password.isEmpty() ? "[None]" : "******").append("\n");
+        message.append("Comment: ").append(comment.isEmpty() ? "[None]" : comment).append("\n");
+        message.append("Color: ").append(color).append("\n");
+        message.append("Volume: ").append(volume).append("%\n\n");
+        message.append("=== Selection Panel ===\n\n");
+        message.append("Bold: ").append(boldText).append("\n");
+        message.append("Italic: ").append(italicText).append("\n");
+        message.append("Font Size: ").append(fontSize).append("\n");
+        message.append("Selected Fruit: ").append(selectedFruit == null ? "[None]" : selectedFruit);
+
+        JOptionPane.showMessageDialog(null, message.toString(),
+            "Submitted!", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    /**
+     * Resets all form fields and selections to default values.
+     */
+    private static void resetAllFields() {
+        // Reset form inputs
+        nameField.setText("");
+        passwordField.setText("");
+        commentArea.setText("");
+        colorComboBox.setSelectedIndex(0);
+        volumeSlider.setValue(PROGRESS_INITIAL_VALUE);
+
+        // Reset selections
+        boldCheckbox.setSelected(false);
+        italicCheckbox.setSelected(false);
+        mediumRadio.setSelected(true);
+        fruitList.clearSelection();
+
+        // Reset visual components
+        progressBar.setValue(PROGRESS_INITIAL_VALUE);
+        progressBar.setString(PROGRESS_INITIAL_VALUE + "%");
+
+        // Reset to default Red color theme
+        Color redBackground = new Color(255, 220, 220);
+        formPanel.setBackground(redBackground);
+        headerPanel.setBackground(redBackground.brighter());
+        selectionPanel.setBackground(redBackground.brighter());
+
+        titleLabel.setFont(new Font("SansSerif", Font.BOLD, 20));
+    }
+
+    /**
+     * Sets up real-time interactions between components:
+     * - Volume slider updates progress bar
+     * - Color combo box changes panel backgrounds
+     * - Checkboxes modify title font style
+     * - Radio buttons change title font size
+     */
+    private static void setupRealTimeInteractions() {
+        // Slider -> Progress Bar synchronization
+        volumeSlider.addChangeListener(e -> {
+            int value = volumeSlider.getValue();
+            progressBar.setValue(value);
+            progressBar.setString(value + "%");
+        });
+
+        // ComboBox -> Background color theming
+        colorComboBox.addItemListener(e -> {
+            if (e.getStateChange() == ItemEvent.SELECTED) {
+                String selectedColor = (String) e.getItem();
+                Color backgroundColor = switch (selectedColor) {
+                    case "Red" -> new Color(255, 220, 220);
+                    case "Green" -> new Color(220, 255, 220);
+                    case "Blue" -> new Color(220, 220, 255);
+                    case "Yellow" -> new Color(255, 255, 220);
+                    default -> Color.WHITE;
+                };
+
+                formPanel.setBackground(backgroundColor);
+                headerPanel.setBackground(backgroundColor.brighter());
+                selectionPanel.setBackground(backgroundColor.brighter());
+            }
+        });
+
+        // Checkboxes -> Title font style update
+        Runnable updateTitleStyle = () -> {
+            int style = Font.PLAIN;
+            if (boldCheckbox.isSelected()) style |= Font.BOLD;
+            if (italicCheckbox.isSelected()) style |= Font.ITALIC;
+
+            int size = smallRadio.isSelected() ? 16 :
+                      mediumRadio.isSelected() ? 20 :
+                      largeRadio.isSelected() ? 24 : 20;
+
+            titleLabel.setFont(new Font("SansSerif", style, size));
+        };
+
+        boldCheckbox.addItemListener(e -> updateTitleStyle.run());
+        italicCheckbox.addItemListener(e -> updateTitleStyle.run());
+
+        // Radio buttons -> Title font size update
+        smallRadio.addItemListener(e -> updateTitleStyle.run());
+        mediumRadio.addItemListener(e -> updateTitleStyle.run());
+        largeRadio.addItemListener(e -> updateTitleStyle.run());
+    }
+}
+
 ```
 
 ---
