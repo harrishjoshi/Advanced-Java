@@ -1,0 +1,57 @@
+
+# MySQL Docker Setup Configuration
+# This file contains commands to set up a MySQL database in Docker
+
+# =============================================================================
+# STEP 1: Run MySQL Docker Container
+# =============================================================================
+
+# --- For Bash (Linux/Mac) ---
+docker run --name mysql-employee-db \
+  --network host \
+  -e MYSQL_ROOT_PASSWORD=Secure@123 \
+  -e MYSQL_DATABASE=employee \
+  -e MYSQL_ROOT_HOST=% \
+  -d mysql:8.0
+
+# --- For Windows Command Line (CMD) ---
+# docker run --name mysql-employee-db --network host -e MYSQL_ROOT_PASSWORD=Secure@123 -e MYSQL_DATABASE=employee -e MYSQL_ROOT_HOST=% -d mysql:8.0
+
+# Flag Explanations:
+# --name mysql-employee-db     : Assigns a custom name to the container
+# --network host               : Uses host network mode (container shares host's network)
+# -e MYSQL_ROOT_PASSWORD       : Sets the root user password for MySQL
+# -e MYSQL_DATABASE            : Creates a database named "employee" on startup
+# -e MYSQL_ROOT_HOST=%         : Allows root to connect from any host (% is wildcard)
+# -d                           : Runs container in detached mode (background)
+# mysql:8.0                    : Uses MySQL version 8.0 Docker image
+
+# =============================================================================
+# STEP 2: Connect to MySQL Container
+# =============================================================================
+
+docker exec -it mysql-employee-db mysql -u root -p
+
+# You will be prompted to enter the password: Secure@123
+
+# Flag Explanations:
+# -i                           : Interactive mode (keeps STDIN open)
+# -t                           : Allocates a pseudo-TTY (terminal)
+# mysql -u root -p             : Runs MySQL client as root user with password prompt
+
+# =============================================================================
+# STEP 3: Create Application User and Grant Privileges
+# =============================================================================
+# Run these SQL commands inside the MySQL prompt:
+
+CREATE USER 'appuser'@'%' IDENTIFIED BY 'Secure@123';
+GRANT ALL PRIVILEGES ON *.* TO 'appuser'@'%';
+FLUSH PRIVILEGES;
+
+# SQL Command Explanations:
+# CREATE USER                  : Creates a new MySQL user account
+# 'appuser'@'%'                : Username 'appuser' can connect from any host (%)
+# IDENTIFIED BY                : Sets the password for the user
+# GRANT ALL PRIVILEGES         : Gives full access to all databases and tables
+# ON *.*                       : Applies to all databases (*) and all tables (*)
+# FLUSH PRIVILEGES             : Reloads privilege tables to apply changes immediately
