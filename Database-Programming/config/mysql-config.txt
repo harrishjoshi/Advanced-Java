@@ -9,13 +9,14 @@
 # --- For Bash (Linux/Mac) ---
 docker run --name mysql-employee-db \
   --network host \
+  -p 3307:3307 \
   -e MYSQL_ROOT_PASSWORD=Secure@123 \
   -e MYSQL_DATABASE=employee \
   -e MYSQL_ROOT_HOST=% \
   -d mysql:8.0
 
 # --- For Windows Command Line (CMD) ---
-# docker run --name mysql-employee-db --network host -e MYSQL_ROOT_PASSWORD=Secure@123 -e MYSQL_DATABASE=employee -e MYSQL_ROOT_HOST=% -d mysql:8.0
+# docker run --name mysql-employee-db --network host -p 3307:3307 -e MYSQL_ROOT_PASSWORD=Secure@123 -e MYSQL_DATABASE=employee -e MYSQL_ROOT_HOST=% -d mysql:8.0
 
 # Flag Explanations:
 # --name mysql-employee-db     : Assigns a custom name to the container
