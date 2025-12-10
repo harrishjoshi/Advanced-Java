@@ -7,11 +7,13 @@
     - [Connection Pooling](#connection-pooling)
   - [2. Working with JDBC Statements](#2-working-with-jdbc-statements)
     - [Statement vs. PreparedStatement](#statement-vs-preparedstatement)
+    - [CallableStatement](#example-callablestatment)
   - [3. Scrollable and Updatable Result Sets](#3-scrollable-and-updatable-result-sets)
     - [Scrollability Types](#scrollability-types)
     - [Concurrency Types](#concurrency-types)
     - [Scrollable & Updatable ResultSet Example](#scrollable--updatable-resultset-example)
   - [4. RowSets](#4-rowsets)
+    - [Example: JdbcRowSet (Connected RowSet)](#example-jdbcrowset-connected-rowset)
     - [Example: CachedRowSet (Disconnected RowSet)](#example-cachedrowset-disconnected-rowset)
 
 ---
@@ -165,6 +167,84 @@ try (PreparedStatement ps = conn.prepareStatement(psSql)) {
 * Better performance (precompiled SQL)
 * Automatic type handling and escaping
 
+## CallableStatement
+
+### Calling Stored Procedures using CallableStatement
+
+JDBC provides the `CallableStatement` interface to execute **stored procedures** defined in the database. Stored procedures are precompiled SQL programs stored on the database server and are typically used to encapsulate complex business logic, validations, and multi-statement operations.
+
+Using stored procedures offers several advantages:
+
+* Reduced network overhead
+* Improved performance
+* Centralized business logic
+* Better security and maintainability
+
+The `CallableStatement` interface supports **IN**, **OUT**, and **INOUT** parameters.
+
+---
+
+### Example: Stored Procedure (MySQL)
+
+```sql
+CREATE PROCEDURE getRaisedSalary(
+    IN empId INT,
+    IN raisePercent DOUBLE,
+    OUT newSalary DOUBLE
+)
+BEGIN
+    SELECT salary * (1 + raisePercent / 100)
+    INTO newSalary
+    FROM employees
+    WHERE id = empId;
+END;
+```
+
+**Parameter Types:**
+
+* `IN` – Input values passed from Java
+* `OUT` – Output values returned to Java
+
+If no employee exists with the given `empId`, the output parameter will be `NULL`.
+
+---
+
+### Java Example: Calling a Stored Procedure
+
+```java
+String callSql = "{CALL getRaisedSalary(?, ?, ?)}";
+
+try (CallableStatement cs = conn.prepareCall(callSql)) {
+
+    // Set input parameters
+    cs.setInt(1, 101);       // empId
+    cs.setDouble(2, 10.0);   // raisePercent (10%)
+
+    // Register output parameter
+    cs.registerOutParameter(3, java.sql.Types.DOUBLE);
+
+    // Execute stored procedure
+    cs.execute();
+
+    // Retrieve output parameter
+    double newSalary = cs.getDouble(3);
+
+    if (cs.wasNull()) {
+        System.out.println("Employee not found.");
+    } else {
+        System.out.println("New salary after raise: " + newSalary);
+    }
+
+}
+```
+
+**Key Points:**
+
+* Parameter indexing starts at **1**
+* OUT parameters must be registered **before execution**
+* Use `wasNull()` to detect NULL output values
+* `{CALL ...}` syntax is vendor-neutral and recommended
+
 ---
 
 ## 3. Scrollable and Updatable Result Sets
@@ -250,6 +330,69 @@ RowSets fall into two categories:
 | `JoinRowSet`   | Disconnected | Joins multiple RowSets without SQL | Client-side joins |
 
 ---
+### Example: JdbcRowSet (Connected RowSet)
+
+A `JdbcRowSet` is a **connected RowSet** implementation that acts as a wrapper around a `ResultSet`. Unlike `CachedRowSet`, it maintains a **live database connection** throughout its lifecycle.
+
+Features of `JdbcRowSet`:
+
+* Scrollable by default
+* Typically updatable (driver-dependent)
+* Simplifies navigation and update logic
+* Supports event listeners
+* Automatically closes resources when used with try-with-resources
+
+Because it remains connected, `JdbcRowSet` is suitable for **short-lived operations**, such as desktop or single-tier applications.
+
+---
+
+```java
+import javax.sql.rowset.JdbcRowSet;
+import javax.sql.rowset.RowSetProvider;
+
+String url = "jdbc:mysql://localhost:3306/companydb";
+String user = "appuser";
+String password = "secure123";
+
+try (JdbcRowSet jrs = RowSetProvider.newFactory().createJdbcRowSet()) {
+
+    // Configure database connection
+    jrs.setUrl(url);
+    jrs.setUsername(user);
+    jrs.setPassword(password);
+
+    // Set query and execute
+    jrs.setCommand("SELECT id, first_name, salary FROM employees");
+    jrs.execute();
+
+    // Forward navigation
+    while (jrs.next()) {
+        System.out.println(
+            jrs.getInt("id") + ": " + jrs.getString("first_name")
+        );
+    }
+
+    // Move cursor to first row and update data
+    if (jrs.first()) {
+        double updatedSalary = jrs.getDouble("salary") * 1.05;
+        jrs.updateDouble("salary", updatedSalary);
+        jrs.updateRow();  // Persist change to database
+
+        System.out.println(
+            "Salary updated for: " + jrs.getString("first_name")
+        );
+    }
+
+}
+```
+
+---
+
+### Important Notes
+
+* `JdbcRowSet` depends on database driver support for scrollable and updatable result sets
+* By default, updates are committed immediately if **auto-commit is enabled**
+* Since it maintains a live connection, it should not be used in long-running or distributed scenarios
 
 ### Example: CachedRowSet (Disconnected RowSet)
 
