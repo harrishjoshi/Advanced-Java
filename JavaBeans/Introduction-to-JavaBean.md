@@ -68,29 +68,17 @@ This class satisfies all JavaBean requirements and can be fully used by IDEs, bu
 ---
 
 ## Advantages of JavaBeans
-
-| Advantage                  | Explanation                                                                 |
-
-|----------------------------|-----------------------------------------------------------------------------|
-
-| Reusability                | Beans can be developed once and reused across multiple applications         |
-
-| Ease of Development        | Standard conventions make beans self-descriptive and easy to understand     |
-
-| Tool & IDE Support         | IDEs can auto-generate getters/setters, bind to UI, show property editors   |
-
-| Framework Compatibility    | Used extensively in Spring, JSF, JavaFX, EJB, etc.                          |
-
-| Introspection              | Tools can discover properties, events, and methods at runtime               |
-
-| Serialization/Persistence  | Implementing `Serializable` allows saving/restoring bean state              |
-
-| Event Handling             | Supports decoupled communication via listener patterns                      |
-
-| Interoperability           | Platform-independent and works seamlessly across Java environments         |
-
-| Encapsulation              | Private fields with controlled access via getters/setters                   |
-
+| **Advantage**               | **Explanation**                                                                  |
+| --------------------------- | -------------------------------------------------------------------------------- |
+| Reusability                 | Beans can be implemented once and reused across multiple applications            |
+| Ease of Development         | Standard naming conventions make beans self-descriptive and easy to maintain     |
+| Tool & IDE Support          | IDEs can auto-generate getters/setters, bind to UIs, and expose property editors |
+| Framework Compatibility     | Widely used in frameworks such as Spring, JSF, JavaFX, and EJB                   |
+| Introspection               | Tools can discover properties, events, and methods at runtime                    |
+| Serialization & Persistence | Implementing `Serializable` enables saving and restoring bean state              |
+| Event Handling              | Supports decoupled communication through listener-based patterns                 |
+| Interoperability            | Platform-independent and portable across Java environments                       |
+| Encapsulation               | Enforces data hiding using private fields with controlled accessor methods       |
 ---
 
 ## Introspection
@@ -147,22 +135,13 @@ No manual metadata is needed; the `Introspector` discovers everything from metho
 ## Properties, Events, and Methods Design Patterns
 
 ### 1. Properties
-
-Properties represent the internal state of a bean. They are **not fields**, but are inferred from getter/setter method pairs.
-
-| Type               | Getter Pattern                          | Setter Pattern                  | Notes                                      |
-
-|--------------------|-----------------------------------------|----------------------------------|--------------------------------------------|
-
-| Simple             | `public T getXxx()`                     | `public void setXxx(T value)`   | Most common                                |
-
-| Boolean            | `public boolean isXxx()` or `getXxx()` | `public void setXxx(boolean v)` | `isXxx()` preferred                        |
-
-| Read-only          | `public T getXxx()`                     | —                                | No setter                                  |
-
-| Write-only         | —                                       | `public void setXxx(T value)`   | Rare                                       |
-
-| Indexed            | `public T getXxx(int index)`<br>`public T[] getXxx()` | `public void setXxx(int i, T v)`<br>`public void setXxx(T[] v)` | For array/collection properties            |
+| **Property Type** | **Getter Pattern**                                    | **Setter Pattern**                                              | **Notes**                                                       |
+| ----------------- | ----------------------------------------------------- | --------------------------------------------------------------- | --------------------------------------------------------------- |
+| Simple            | `public T getXxx()`                                   | `public void setXxx(T value)`                                   | Most common property type                                       |
+| Boolean           | `public boolean isXxx()` or `getXxx()`                | `public void setXxx(boolean value)`                             | `isXxx()` is preferred by convention                            |
+| Read-only         | `public T getXxx()`                                   | —                                                               | Property can be read but not modified                           |
+| Write-only        | —                                                     | `public void setXxx(T value)`                                   | Rare; supported but generally discouraged                       |
+| Indexed           | `public T getXxx(int index)`<br>`public T[] getXxx()` | `public void setXxx(int i, T v)`<br>`public void setXxx(T[] v)` | Used for array or list-like properties; supports indexed access |
 
 **Example: Indexed Property**
 
