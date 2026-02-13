@@ -17,3 +17,10 @@
 3. JavaBeans  
    - Demonstration of JavaBeans  
    - Properties of JavaBeans  
+
+4. Servlets and JSP
+   - Demonstration the life cycle of Servlets
+   - Connect to a database, insert and display the data using servlet.
+
+5. RMI
+   - Demonstration of RMI
